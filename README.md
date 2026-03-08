@@ -1,8 +1,16 @@
 # mquickjs
 
-Tiny ES5 sandbox compiled to WebAssembly. Runs in browsers, Node, Bun, Deno, Vercel, Cloudflare — anywhere WASM runs.
+Tiny and fast JS sandbox for untrusted code, compiled to WebAssembly. Runs in browsers, Node, Bun, Deno, Vercel, Cloudflare — anywhere WASM runs.
 
-Based on [MicroQuickJS](https://bellard.org/quickjs/mquickjs.html) by Fabrice Bellard.
+Powered by [MicroQuickJS](https://bellard.org/quickjs/mquickjs.html) by Fabrice Bellard.
+
+## Features
+
+- **No expensive sandboxes.** Run guest code in an in-process JS sandbox without spinning up linux VMs.
+- **Expose host APIs.** Use `engine.expose` to make JS APIs callable from guest code.
+- **Synchronous guest→host calls.** Any exposed async functions appear synchronous within the guest code. The VM pauses and waits for host promises to resolve before resuming execution.
+- **Deterministic execution limits.** Set memory limits, and bound execution duration by bytecode ops with 1K resolution.
+- **Optional guest code pre-compilation.** MicroQuickJS doesn't support arrow functions or let/const, but you can use the built-in compiler to support some modern features.
 
 ## Install
 
@@ -22,6 +30,50 @@ console.log(result); // 2
 
 engine.dispose();
 ```
+
+## Compile modern JS
+
+MicroQuickJS runs a small ES5-era language. If you want to author guest code with modern syntax like arrow functions or `let` / `const`, use the compile API first.
+
+### Node
+
+```ts
+import { compile } from "@okokoklol/mquickjs/compile";
+import { MQuickJS } from "@okokoklol/mquickjs";
+
+const engine = await MQuickJS.create();
+
+const code = compile(`
+  const add = (a, b) => a + b;
+  add(3, 4);
+`);
+
+console.log(await engine.eval(code)); // 7
+```
+
+Install `@swc/core` alongside the package when you use this entrypoint:
+
+```sh
+npm install @okokoklol/mquickjs @swc/core
+```
+
+### Browser
+
+```ts
+import { compile } from "@okokoklol/mquickjs/compile/web";
+
+const code = await compile("const add = (a, b) => a + b; add(3, 4);");
+```
+
+If you need to control SWC WASM loading yourself, call `init({ module })` first and then use `createCompileJS()` or `compile()`.
+
+Install `@swc/wasm-web` alongside the package when you use this entrypoint:
+
+```sh
+npm install @okokoklol/mquickjs @swc/wasm-web
+```
+
+Both entrypoints reject syntax that still depends on runtime features MicroQuickJS does not provide, like async functions, generators, `await`, dynamic `import()`, and `import.meta`.
 
 ## API
 
@@ -114,7 +166,7 @@ await engine.eval(`
 `);
 ```
 
-The guest is ES5 — no Promises, no async/await. Use [SWC](https://swc.rs/) targeting ES5 if you want to author guest code in modern syntax.
+The guest is ES5-era JS — no Promises, no async/await. Use `@okokoklol/mquickjs/compile` or `@okokoklol/mquickjs/compile/web` if you want to author guest code in modern syntax.
 
 ## Fuel
 

@@ -1,7 +1,12 @@
+import { compile } from "../dist/compile.js";
 import { MQuickJS } from "../dist/index.js";
 
 async function run() {
   const engine = await MQuickJS.create();
+
+  // Compile modern syntax to guest-safe ES3 first.
+  const compiled = compile("const add = (a, b) => a + b; add(3, 4);");
+  console.log("compiled add =", await engine.eval(compiled));
 
   // Basic eval
   console.log("1+1 =", await engine.eval("1+1"));

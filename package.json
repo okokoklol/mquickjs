@@ -10,6 +10,14 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
+    "./compile": {
+      "import": "./dist/compile.js",
+      "types": "./dist/compile.d.ts"
+    },
+    "./compile/web": {
+      "import": "./dist/compile_web.js",
+      "types": "./dist/compile_web.d.ts"
+    },
     "./mquickjs.wasm": "./dist/mquickjs.wasm"
   },
   "files": [
@@ -20,10 +28,24 @@
     "build:wasm": "make -f Makefile.wasm",
     "build:ts": "tsc",
     "build": "npm run build:wasm && npm run build:ts",
-    "clean": "make -f Makefile.wasm clean && rm -rf dist/index.js dist/index.d.ts",
+    "clean": "make -f Makefile.wasm clean && rm -rf dist",
     "test": "npm run build && node tests/wasm_test.mjs"
   },
+  "peerDependencies": {
+    "@swc/core": "^1",
+    "@swc/wasm-web": "^1"
+  },
+  "peerDependenciesMeta": {
+    "@swc/core": {
+      "optional": true
+    },
+    "@swc/wasm-web": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "@swc/core": "^1",
+    "@swc/wasm-web": "^1.15.18",
     "typescript": "^5"
   },
   "license": "MIT"
