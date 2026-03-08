@@ -15,13 +15,13 @@ Powered by [MicroQuickJS](https://github.com/bellard/mquickjs) by Fabrice Bellar
 ## Install
 
 ```
-npm install @okokoklol/mquickjs
+npm install @ok.lol/mquickjs
 ```
 
 ## Quick start
 
 ```ts
-import { MQuickJS } from "@okokoklol/mquickjs";
+import { MQuickJS } from "@ok.lol/mquickjs";
 
 const engine = await MQuickJS.create();
 
@@ -38,8 +38,8 @@ MicroQuickJS runs a small ES5-era language. If you want to author guest code wit
 ### Node
 
 ```ts
-import { compile } from "@okokoklol/mquickjs/compile";
-import { MQuickJS } from "@okokoklol/mquickjs";
+import { compile } from "@ok.lol/mquickjs/compile";
+import { MQuickJS } from "@ok.lol/mquickjs";
 
 const engine = await MQuickJS.create();
 
@@ -54,13 +54,13 @@ console.log(await engine.eval(code)); // 7
 Install `@swc/core` alongside the package when you use this entrypoint:
 
 ```sh
-npm install @okokoklol/mquickjs @swc/core
+npm install @ok.lol/mquickjs @swc/core
 ```
 
 ### Browser
 
 ```ts
-import { compile } from "@okokoklol/mquickjs/compile/web";
+import { compile } from "@ok.lol/mquickjs/compile/web";
 
 const code = await compile("const add = (a, b) => a + b; add(3, 4);");
 ```
@@ -70,7 +70,7 @@ If you need to control SWC WASM loading yourself, call `init({ module })` first 
 Install `@swc/wasm-web` alongside the package when you use this entrypoint:
 
 ```sh
-npm install @okokoklol/mquickjs @swc/wasm-web
+npm install @ok.lol/mquickjs @swc/wasm-web
 ```
 
 Both entrypoints reject syntax that still depends on runtime features MicroQuickJS does not provide, like async functions, generators, `await`, dynamic `import()`, and `import.meta`.
@@ -166,7 +166,7 @@ await engine.eval(`
 `);
 ```
 
-The guest is ES5-era JS — no Promises, no async/await. Use `@okokoklol/mquickjs/compile` or `@okokoklol/mquickjs/compile/web` if you want to author guest code in modern syntax.
+The guest is ES5-era JS — no Promises, no async/await. Use `@ok.lol/mquickjs/compile` or `@ok.lol/mquickjs/compile/web` if you want to author guest code in modern syntax.
 
 ## Fuel
 

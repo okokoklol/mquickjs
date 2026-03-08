@@ -1,5 +1,5 @@
 {
-  "name": "@okokoklol/mquickjs",
+  "name": "@ok.lol/mquickjs",
   "version": "0.1.0",
   "description": "MicroQuickJS WASM — tiny ES5 sandbox with host object injection",
   "type": "module",
