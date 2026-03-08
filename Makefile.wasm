@@ -1,0 +1,75 @@
+# mquickjs WASM build via emscripten
+#
+# Two-phase build:
+#   1. Host tool generates stdlib ROM tables (bridge_stdlib.h, mquickjs_atom.h)
+#   2. emcc compiles C sources + generated headers to WASM
+
+HOST_CC ?= gcc
+HOST_CFLAGS = -Wall -g -MMD -D_GNU_SOURCE -fno-math-errno -fno-trapping-math -O2
+HOST_LDFLAGS = -g
+
+EMCC ?= emcc
+EMFLAGS = -Os -Wall \
+	-D_GNU_SOURCE -fno-math-errno -fno-trapping-math \
+	-s MODULARIZE=1 \
+	-s EXPORT_ES6=1 \
+	-s EXPORTED_FUNCTIONS='["_mqjs_init","_mqjs_eval","_mqjs_free","_mqjs_set_fuel","_malloc","_free"]' \
+	-s EXPORTED_RUNTIME_METHODS='["UTF8ToString","stringToUTF8","lengthBytesUTF8","ccall"]' \
+	-s ENVIRONMENT='web,node' \
+	-s ALLOW_MEMORY_GROWTH=1 \
+	-s ASYNCIFY \
+	-s ASYNCIFY_IMPORTS='["host_call"]' \
+	-s ASYNCIFY_STACK_SIZE=8192 \
+	--js-library wasm/bridge_imports.js \
+	--no-entry
+
+BUILD = wasm/build
+
+# –
+# Phase 1: host stdlib generator
+# –
+
+$(BUILD)/bridge_stdlib.host.o: wasm/bridge_stdlib.c mqjs_stdlib.c mquickjs_build.h
+	@mkdir -p $(BUILD)
+	$(HOST_CC) $(HOST_CFLAGS) -I. -c -o $@ wasm/bridge_stdlib.c
+
+$(BUILD)/mquickjs_build.host.o: mquickjs_build.c mquickjs_build.h cutils.h list.h
+	@mkdir -p $(BUILD)
+	$(HOST_CC) $(HOST_CFLAGS) -c -o $@ mquickjs_build.c
+
+$(BUILD)/bridge_stdlib: $(BUILD)/bridge_stdlib.host.o $(BUILD)/mquickjs_build.host.o
+	$(HOST_CC) $(HOST_LDFLAGS) -o $@ $^
+
+$(BUILD)/mquickjs_atom.h: $(BUILD)/bridge_stdlib
+	$< -a -m32 > $@
+
+$(BUILD)/bridge_stdlib.h: $(BUILD)/bridge_stdlib
+	$< -m32 > $@
+
+GENERATED = $(BUILD)/mquickjs_atom.h $(BUILD)/bridge_stdlib.h
+
+# –
+# Phase 2: WASM compilation
+# –
+
+WASM_SRCS = wasm/bridge.c mquickjs.c dtoa.c libm.c cutils.c
+
+dist/mquickjs.mjs: $(WASM_SRCS) $(GENERATED) wasm/bridge_imports.js
+	@mkdir -p dist
+	$(EMCC) $(EMFLAGS) \
+		-I. -I$(BUILD) \
+		$(WASM_SRCS) \
+		-o $@
+
+# –
+# Targets
+# –
+
+.PHONY: all clean
+
+all: dist/mquickjs.mjs
+
+clean:
+	rm -rf $(BUILD) dist/mquickjs.mjs dist/mquickjs.wasm
+
+-include $(wildcard $(BUILD)/*.d)

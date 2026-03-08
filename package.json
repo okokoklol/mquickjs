@@ -1,0 +1,30 @@
+{
+  "name": "@okokoklol/mquickjs",
+  "version": "0.1.0",
+  "description": "MicroQuickJS WASM — tiny ES5 sandbox with host object injection",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./mquickjs.wasm": "./dist/mquickjs.wasm"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "bench": "npm run build && node tests/wasm_bench.mjs",
+    "build:wasm": "make -f Makefile.wasm",
+    "build:ts": "tsc",
+    "build": "npm run build:wasm && npm run build:ts",
+    "clean": "make -f Makefile.wasm clean && rm -rf dist/index.js dist/index.d.ts",
+    "test": "npm run build && node tests/wasm_test.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  },
+  "license": "MIT"
+}
