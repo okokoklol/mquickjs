@@ -2,7 +2,7 @@
 
 Tiny and fast JS sandbox for untrusted code, compiled to WebAssembly. Runs in browsers, Node, Bun, Deno, Vercel, Cloudflare — anywhere WASM runs.
 
-Powered by [MicroQuickJS](https://bellard.org/quickjs/mquickjs.html) by Fabrice Bellard.
+Powered by [MicroQuickJS](https://github.com/bellard/mquickjs) by Fabrice Bellard.
 
 ## Features
 
