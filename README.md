@@ -189,7 +189,7 @@ await engine.eval("2 + 2", { fuel: 100_000 });
 
 Fuel is deterministic: the same code consumes the same fuel on every machine. Async host calls (Asyncify suspensions) do not consume fuel — only guest bytecode execution counts.
 
-Omitting `fuel` means unlimited execution (backward compatible).
+Omitting `fuel` means unlimited execution.
 
 ## Performance
 
